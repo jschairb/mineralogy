@@ -39,6 +39,10 @@ module Mineralogy
     private
 
     def execute(*commands)
+      self.class.execute(host, username, password, *commands)
+    end
+
+    def self.execute(host, username, password, *commands)
       Net::SSH.start(host, username, :password => password) do |ssh|
         @output = commands.collect {|c| ssh.exec!(c)}
       end
