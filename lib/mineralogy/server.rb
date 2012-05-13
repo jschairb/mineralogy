@@ -4,7 +4,7 @@ module Mineralogy
   class Server
     attr_accessor :host, :username, :password
 
-    BIN_PATH = "/etc/init.d/minecraft"
+    WORLDS_PATH = "/home/minecraft/mc-worlds"
 
     def initialize(args={})
       args.each {|k,v| send("#{k}=".intern, v)}
@@ -27,7 +27,7 @@ module Mineralogy
     end
 
     def start
-      execute("#{bin_path} start")
+      execute(Commands.start)
     end
 
     def status
@@ -35,11 +35,29 @@ module Mineralogy
     end
 
     def stop
-      execute("#{bin_path} stop")
+      execute(Commands.stop)
+    end
+
+    def switch_worlds(world)
+      commands = [stop_command, symlink_world(world), start_command]
+      execute(commands)
+    end
+
+    def symlink_world(world)
+      execute(Commands.symlink_world(world))
     end
 
     def update
       execute("#{bin_path} update")
+    end
+
+    def worlds
+      worlds = execute("/bin/ls #{worlds_path}")
+      worlds.split("\n")
+    end
+
+    def worlds_path
+      self.class.worlds_path
     end
 
     private
@@ -49,7 +67,7 @@ module Mineralogy
     end
 
     def self.bin_path
-      BIN_PATH
+      Commands.bin_path
     end
 
     def self.execute(host, username, password, *commands)
@@ -58,6 +76,10 @@ module Mineralogy
       end
 
       @output.join("")
+    end
+
+    def self.worlds_path
+      WORLDS_PATH
     end
   end
 end
