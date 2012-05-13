@@ -3,15 +3,34 @@ require 'spec_helper'
 module Mineralogy
   describe Server do 
     before do
-      Net::SSH.stub!(:start).and_yield(session)
+      Server.stub!(:execute).and_return(response)
     end
 
-    let(:session) { mock("session") }
+    let(:response) { "Generic response received..." }
+    let(:server) { Server.new }
 
-    describe "backup" do
+    describe "#backup" do
+
+      let(:response) { "Backing up server..." }
+
+      it "backs up the server" do
+        Server.should_receive(:execute).with(anything, anything, anything, "#{server.bin_path} backup").
+          and_return(response)
+        server.backup
+      end
+
+      it "returns the response" do 
+        server.backup.should == response
+      end
     end
 
-    describe "command" do
+    describe "#bin_path" do 
+      it "returns the class bin path" do 
+        server.bin_path.should == Server.bin_path
+      end
+    end
+
+    describe "#command" do
     end
 
     describe "#new" do 
@@ -32,16 +51,10 @@ module Mineralogy
     end
 
     describe "#restart" do 
-      before do
-        session.stub!(:exec! => response)
-      end
-
-      let(:response) { "Stopping minecraft_server.jar\nminecraft_server.jar is stopped.\nStarting minecraft_server.jar...\nminecraft_server.jar is now running." }
-
-      let(:server) { Server.new }
+      let(:response) { "Restarting the server..." }
 
       it "restarts the server" do 
-        session.should_receive(:exec!).with("/etc/init.d/minecraft restart")
+        Server.should_receive(:execute).with(anything, anything, anything, "#{server.bin_path} restart")
         server.restart
       end
 
@@ -51,22 +64,36 @@ module Mineralogy
     end
 
     describe "start" do 
+      let(:response) { "Starting minecraft_server.jar\nminecraft_server.jar is started." }
+
+      it "starts the server" do 
+        Server.should_receive(:execute).with(anything, anything, anything, "#{server.bin_path} start")
+        server.start
+      end
+
+      it "returns the response" do 
+        server.start.should == response
+      end
     end
 
     describe "status" do 
+      let(:response) { "Server is running..." }
+
+      it "queries the server for status" do 
+        Server.should_receive(:execute).with(anything, anything, anything, "#{server.bin_path} status")
+        server.status
+      end
+
+      it "returns the response" do 
+        server.status.should == response
+      end
     end
 
     describe "stop" do 
-      before do
-        session.stub!(:exec! => response)
-      end
-
       let(:response) { "Stopping minecraft_server.jar\nminecraft_server.jar is stopped." }
 
-      let(:server) { Server.new }
-
       it "stops the server" do 
-        session.should_receive(:exec!).with("/etc/init.d/minecraft stop")
+        Server.should_receive(:execute).with(anything, anything, anything, "#{server.bin_path} stop")
         server.stop
       end
 
