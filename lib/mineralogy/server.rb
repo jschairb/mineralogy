@@ -11,7 +11,7 @@ module Mineralogy
     end
 
     def backup
-      execute("#{bin_path} backup")
+      execute(Commands.backup)
     end
 
     def bin_path
@@ -19,11 +19,11 @@ module Mineralogy
     end
 
     def command(mc_command)
-      execute("#{bin_path} command #{mc_command}")
+      execute(Commands.command(mc_command))
     end
 
     def restart
-      execute("#{bin_path} restart")
+      execute(Commands.restart)
     end
 
     def start
@@ -31,7 +31,7 @@ module Mineralogy
     end
 
     def status
-      execute("#{bin_path} status")
+      execute(Commands.status)
     end
 
     def stop
@@ -39,7 +39,7 @@ module Mineralogy
     end
 
     def switch_worlds(world)
-      commands = [stop_command, symlink_world(world), start_command]
+      commands = [Commands.stop, Commands.symlink_world(world), Commands.start]
       execute(commands)
     end
 
@@ -48,7 +48,7 @@ module Mineralogy
     end
 
     def update
-      execute("#{bin_path} update")
+      execute(Commands.update)
     end
 
     def worlds
@@ -72,7 +72,8 @@ module Mineralogy
 
     def self.execute(host, username, password, *commands)
       Net::SSH.start(host, username, :password => password) do |ssh|
-        @output = commands.collect {|c| ssh.exec!(c)}
+        server_commands = commands.join(" && ")
+        @output = ssh.exec!(server_commands)
       end
 
       @output.join("")
