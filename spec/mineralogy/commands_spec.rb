@@ -22,6 +22,14 @@ module Mineralogy
       end
     end
 
+    describe ".ls" do
+      context "with a given path" do 
+        it "returns the ls command " do
+          Commands.ls("/home/minecraft").should == "/bin/ls /home/minecraft"
+        end
+      end
+    end
+
     describe ".restart" do
       it "returns the restart command" do
         Commands.restart.should include(" restart")

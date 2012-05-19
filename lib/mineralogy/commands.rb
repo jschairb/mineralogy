@@ -14,6 +14,10 @@ module Mineralogy
       "#{bin_path} command #{mc_command}"
     end
 
+    def self.ls(path)
+      "/bin/ls #{path}"
+    end
+
     def self.restart
       "#{bin_path} restart"
     end
@@ -37,5 +41,6 @@ module Mineralogy
     def self.update
       "#{bin_path} update"
     end
+
   end
 end

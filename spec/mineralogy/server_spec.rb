@@ -33,6 +33,12 @@ module Mineralogy
     describe "#command" do
     end
 
+    describe "#current_path" do
+      it "returns the class current path" do
+        server.current_path.should == Server.current_path
+      end
+    end
+
     describe "#new" do 
       it "sets the host" do 
         server = Server.new(:host => "127.0.0.1")
@@ -103,6 +109,18 @@ module Mineralogy
     end
 
     describe "update" do
+    end
+
+    describe "world_path" do
+      it "returns the path for the world" do
+        server.world_path("my-world").should == "#{Server::WORLDS_PATH}/my-world"
+      end
+    end
+
+    describe "worlds_path" do
+      it "returns the WORLDS_PATH" do
+        server.worlds_path.should == Server.worlds_path
+      end
     end
   end
 end

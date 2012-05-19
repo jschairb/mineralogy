@@ -4,6 +4,7 @@ module Mineralogy
   class Server
     attr_accessor :host, :username, :password
 
+    CURRENT_PATH = "/home/minecraft/current"
     WORLDS_PATH = "/home/minecraft/mc-worlds"
 
     def initialize(args={})
@@ -20,6 +21,10 @@ module Mineralogy
 
     def command(mc_command)
       execute(Commands.command(mc_command))
+    end
+
+    def current_path
+      self.class.current_path
     end
 
     def restart
@@ -39,7 +44,7 @@ module Mineralogy
     end
 
     def switch_worlds(world)
-      commands = [Commands.stop, Commands.symlink_world(world), Commands.start]
+      commands = [Commands.stop, symlink_world(world), Commands.start]
       execute(commands)
     end
 
@@ -52,12 +57,16 @@ module Mineralogy
     end
 
     def worlds
-      worlds = execute("/bin/ls #{worlds_path}")
+      worlds = execute(Commands.ls(worlds_path))
       worlds.split("\n")
     end
 
     def worlds_path
       self.class.worlds_path
+    end
+
+    def world_path(world)
+      [worlds_path, world].join("/")
     end
 
     private
@@ -70,13 +79,17 @@ module Mineralogy
       Commands.bin_path
     end
 
+    def self.current_path
+      CURRENT_PATH
+    end
+
     def self.execute(host, username, password, *commands)
       Net::SSH.start(host, username, :password => password) do |ssh|
         server_commands = commands.join(" && ")
         @output = ssh.exec!(server_commands)
       end
 
-      @output.join("")
+      @output
     end
 
     def self.worlds_path
